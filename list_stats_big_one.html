@@ -1,0 +1,104 @@
+<style type="text/css">
+<!--
+	th {
+		text-align:center;
+	}
+	table {
+		cell-padding: 20px;
+	}
+	td {
+		text-align:center;
+	}-->
+</style>
+
+<h2><b>List size and stats:</b></h2>
+<table>
+<tr><th>&nbsp;</th><th>&nbsp;Full Base&nbsp;</th>
+</tr>
+<tr>
+	<td>&nbsp;Mailable Users&nbsp;</td>
+	<td>&nbsp;{{ reports.users_mail }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;US Users&nbsp;</td>
+	<td>&nbsp;{{ reports.users_US }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Mailable US Users&nbsp;</td>
+	<td>&nbsp;{{ reports.users_mail_US }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;New Users&nbsp;</td>
+	<td>&nbsp;{{ reports.users_new }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;New Users (imported)&nbsp;</td>
+	<td>&nbsp;{{ reports.users_new_import }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;New Users (actions)&nbsp;</td>
+	<td>&nbsp;{{ reports.users_new_action }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Lost users: bounces&nbsp;</td>
+	<td>&nbsp;{{ reports.users_bounced }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Lost users: unsubscribed&nbsp;</td>
+	<td>&nbsp;{{ reports.users_unsub }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Users: 1 action last year&nbsp;</td>
+	<td>&nbsp;{{ reports.users_1act_yr }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Users: 3 actions last year&nbsp;</td>
+	<td>&nbsp;{{ reports.users_3act_yr }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Users: 1 action last 90d</td>
+	<td>&nbsp;{{ reports.users_1act_90d }}</td>
+</tr>
+<tr>
+	<td>&nbsp;Users: 3 actions last 90d&nbsp;</td>
+	<td>&nbsp;{{ reports.users_3act_90d }}&nbsp;</td>
+</tr>
+</table>
+
+<h2><b>Donations this week:</b></h2>
+<table>
+<tr><th>&nbsp;</th><th>&nbsp;Full Base&nbsp;</th>
+</tr>
+<tr>
+	<td>&nbsp;Total Raised&nbsp;</td>
+	<td>&nbsp;${{ reports.donations_week }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;# of Donations&nbsp;</td>
+	<td>&nbsp;{{ reports.donations_count }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Average&nbsp;</td>
+	<td>&nbsp;${{ reports.donations_average }}&nbsp;</td>
+</tr>
+</table>
+
+<h2><b>Actions this week:</b></h2>
+<table>
+<tr><th>&nbsp;</th><th>&nbsp;Full Base&nbsp;</th>
+</tr>
+<tr>
+	<td>&nbsp;Actions taken&nbsp;</td>
+	<td>&nbsp;{{ reports.actions_week }}&nbsp;</td>
+</tr>
+<tr>
+	<td>&nbsp;Unique users&nbsp;</td>
+	<td>&nbsp;{{ reports.actions_users }}&nbsp;</td>
+</tr>
+</table>
+
+<h2><b>Action Details</b></h2>
+{{ reports.actions_details }}
+
+<h2><b>Donations Details</b></h2>
+{{ reports.donations_details }}
