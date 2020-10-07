@@ -33,7 +33,3 @@ from (
          order by ym, c desc) enrollment_per_month_per_page
 # group by name, ym
 # order by ym desc
-
-# join-now,2020-01,55
-# contact-dream-corps,2020-01,46
-# join-cut50,2020-01,35
