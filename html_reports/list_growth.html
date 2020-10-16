@@ -1,0 +1,104 @@
+
+<script type="text/javascript">
+    reports.listSizeByMonthChart = {
+        options: {
+            title: 'List Size by Month',
+            hAxis: { title: 'Month',
+                textStyle: { fontSize: 11 }
+            },
+            vAxis: { title: 'Subscribed users (any list)' },
+            legend: { position: 'none' }
+        }
+    };
+    reports.monthlyNewUsersChart = {
+        options: {
+            title: 'New Users by Month',
+            hAxis: { title: 'Month',
+                textStyle: { fontSize: 11 }
+            },
+            vAxis: { title: 'Users',
+                gridlines: { count: 5 },
+                minorGridlines: { count: 1 }
+            },
+            legend: { position: 'none' }
+        }
+    };
+</script>
+<style type='text/css'>
+    <!--
+    th {
+        text-align:center;
+    }
+    table {
+        cell-padding: 20px;
+    }
+    td {
+        text-align:center;
+    }
+    p {
+        font-size: 1.0em;
+    }-->
+</style>
+{% right_now %}
+
+<h1>List Growth: Your Monthly Progress Report</h1><br />
+
+<table>
+    <tr>
+        <th><b>List Activity</b>&nbsp;&nbsp;
+        <th>List Size&nbsp;&nbsp;
+        <th>New Members&nbsp;&nbsp;
+        <th>Unsub/Bounce&nbsp;&nbsp;
+        <th>Unsub Rate&nbsp;&nbsp;
+        <th>Bounce Rate&nbsp;&nbsp;
+        <th>Churn &nbsp;&nbsp;
+        <th>Avg Msg/Sub &nbsp;&nbsp;
+    </tr>
+    {% for month in now|months_pastyr %}
+    {% if forloop.first %}
+    {% cache_report 'progress_list' with month|month_ago as month %}
+    {% save_sum progress_list as progress_list_old %}
+    {% endif %}
+    {% cache_report 'progress_list' with month as month %}
+    {% cache_report 'progress_new_users' with month as month %}
+    {% cache_report 'progress_unsubs' with month as month %}
+    {% cache_report 'progress_bounces' with month as month %}
+    {% cache_report 'progress_emails' with month as month %}
+    {% save_sum progress_list_old progress_new_users as churn_base %}
+    {% record reportresult progress_new_users in series_newusers %}
+    <tr>
+        <td>{{ month|month_year }}&nbsp;&nbsp;
+        <td>{{ progress_list }}
+        <td>{{ progress_new_users }}
+        <td>{{ progress_unsubs|add:progress_bounces|floatformat:2 }}
+        <td>{{ progress_unsubs|percent_of:progress_list }}
+        <td>{{ progress_bounces|percent_of:progress_list }}
+        <td>{{ churn_base|subtract:progress_list|percent_of:churn_base|floatformat:2 }}
+        <td>{% divide progress_emails progress_list 1 %}
+    </tr>
+    {% endfor %}
+</table>
+<br /><br />
+<div id="monthlyNewUsersChart" class="google-chart ColumnChart" style="height: 500px">
+    {{ reports.progress_new_users_chart }}
+</div>
+<div id="listSizeByMonthChart" class="google-chart LineChart" style="height: 500px">
+    <table>
+        <tr><th>Month</th><th>Members</th></tr>
+        {% for month in now|months_pastyr %}
+        <tr>
+            <td>{{month|month_year}}</td>
+            <td>{% report "progress_list" with month as month %}</td>
+        </tr>
+        {% endfor %}
+    </table>
+</div>
+<h2> Definitions: </h2>
+<p style="font-size: 1.0em"><b>List size:</b> This is the total number of mailable users your group has at the end of each month.</p>
+<p style="font-size: 1.0em"><b>New Members:</b> This is the number of users joining your group for the first time during each month.</p>
+<p style="font-size: 1.0em"><b>Unsubs/bounces:</b> This is the number of users who unsubscribed from or bounced off of one of your lists during each month.</p>
+<p style="font-size: 1.0em"><b>Unsubscribe Rate:</b> The percentage of users during each month who unsubscribed from one of your lists.</p>
+<p style="font-size: 1.0em"><b>Bounce Rate:</b> The percentage of users during each month who bounced off of one of your lists.</p>
+<p style="font-size: 1.0em"><b>Churn:</b> This is defined as (mailable list size at the start of the month + new users during the month - mailable list size at the end of the month) / (mailable list size at month start + new users during month).  This corresponds to the percentage of the total users during each month who left your group by the end of the month.</p>
+<p style="font-size: 1.0em"><b>Average Msg/Sub:</b> This is defined as the number of emails delivered during a month divided by the number of subscribers at the end of the month.</p>
+<p style="font-size: 1.0em">Note: If a user was subscribed to multiple lists, and remains on at least one, that user will still be mailable.  So in general it is <b>not</b> true that this month's list size = last month's list size + this month's new users - this month's unsubs/bounces</p>
