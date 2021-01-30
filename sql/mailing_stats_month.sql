@@ -1,0 +1,22 @@
+# this is crazypants and also the result is off by ~8% somehow?
+
+select concat( year( core_mailing.started_at ), '-', lpad( month( core_mailing.started_at ), 2, '0' ) ) as "year_month",
+       lpad( format( count(distinct core_mailing.id), 0 ), 12, ' ' ) as "mailing_count",
+       lpad( format( sum( ( select count(*) from core_usermailing where core_usermailing.mailing_id = core_mailing.id ) ), 0 ), 12, ' ' ) as "sent_count",
+       lpad( format( sum( ( select count( distinct user_id ) from core_open where core_open.mailing_id = core_mailing.id  ) ), 0 ), 12, ' ' ) as "opens",
+       lpad( concat( format( 100 * sum( ( select count( distinct user_id ) from core_open where core_open.mailing_id = core_mailing.id  ) ) / sum( ( select count(*) from core_usermailing where core_usermailing.mailing_id = core_mailing.id ) ), 1 ), '%' ), 8, ' ' ) as "open_rate",
+       lpad( format( sum( ( select count( distinct user_id ) from core_click join core_clickurl on ( core_click.clickurl_id = core_clickurl.id ) where core_click.mailing_id = core_mailing.id and not core_clickurl.url like '%/unsubscribe/%'  ) ), 0 ), 12, ' ' ) as "clicks",
+       lpad( concat( format( 100 * sum( ( select count( distinct user_id ) from core_click join core_clickurl on ( core_click.clickurl_id = core_clickurl.id ) where core_click.mailing_id = core_mailing.id and not core_clickurl.url like '%/unsubscribe/%'  ) ) / sum( ( select count(*) from core_usermailing where core_usermailing.mailing_id = core_mailing.id ) ), 1 ), '%' ), 8, ' ' ) as "click_rate",
+       lpad( format( sum( ( select count( distinct user_id ) from core_action left join core_unsubscribeaction on ( core_unsubscribeaction.action_ptr_id = core_action.id ) where core_action.mailing_id = core_mailing.id and core_action.status = 'complete' and core_unsubscribeaction.action_ptr_id is null  ) ), 0 ), 12, ' ' ) as "actions",
+       lpad( concat( format( 100 * sum( ( select count( distinct user_id ) from core_action left join core_unsubscribeaction on ( core_unsubscribeaction.action_ptr_id = core_action.id ) where core_action.mailing_id = core_mailing.id and core_action.status = 'complete' and core_unsubscribeaction.action_ptr_id is null  ) ) / sum( ( select count(*) from core_usermailing where core_usermailing.mailing_id = core_mailing.id ) ), 1 ), '%' ), 8, ' ' ) as "action_rate",
+       lpad( format( sum( ( select count( distinct core_action.user_id ) from core_unsubscribeaction join core_action on (core_unsubscribeaction.action_ptr_id=core_action.id) join core_subscriptionhistory on (core_action.id = core_subscriptionhistory.action_id) where core_action.mailing_id = core_mailing.id  ) ), 0 ), 12, ' ' ) as "unsubs",
+       lpad( concat( format( 100 * sum( ( select count( distinct core_action.user_id ) from core_unsubscribeaction join core_action on (core_unsubscribeaction.action_ptr_id=core_action.id) join core_subscriptionhistory on (core_action.id = core_subscriptionhistory.action_id) where core_action.mailing_id = core_mailing.id  ) ) / sum( ( select count(*) from core_usermailing where core_usermailing.mailing_id = core_mailing.id ) ), 1 ), '%' ), 8, ' ' ) as "unsub_rate",
+       lpad( format( sum( ( select count( distinct core_order.user_id ) from core_action join core_order on core_order.action_id = core_action.id where core_action.mailing_id = core_mailing.id and core_action.status = 'complete' and core_order.status = 'completed' ) ), 0 ), 12, ' ' ) as "donors",
+       lpad( concat('$', format( avg( ( select avg( core_transaction.amount_converted ) from core_order left join core_action on core_order.action_id = core_action.id left join core_transaction on core_order.id = core_transaction.order_id where core_action.mailing_id = core_mailing.id and core_order.status = 'completed' and core_transaction.success = 1 and core_transaction.type in ( 'sale', 'credit' ) and core_transaction.status in ( 'completed', '' ) and core_transaction.amount != 0 ) ), 2 ) ), 14, ' ' ) as "avg_payment_per_mailing"
+from core_mailing
+where core_mailing.status = 'completed'
+  and not ( notes like concat( '%', 'staff', '%' ) )
+  and not ( exists ( select * from core_mailing_tags where core_mailing_tags.mailing_id = core_mailing.id and core_mailing_tags.tag_id in ( 338 ) ) )
+  and core_mailing.started_at between timestamp('2020-01-01') and timestamp('2021-12-31', '23:59:59')
+group by 1
+order by 1 DESC
